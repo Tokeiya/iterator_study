@@ -25,6 +25,7 @@ impl<T, I: Iterator<Item = T>, P: Fn(&T) -> bool> Iterator for WinnowIterator<I,
 	}
 }
 
+//Dispatchを確認するために追加した実装ここから
 pub enum WinnowTypes {
 	Even,
 	Odd,
@@ -61,6 +62,8 @@ impl<I: Iterator<Item = i32>> Iterator for WinnowIterator<I, WinnowTypes> {
 	}
 }
 
+//Dispatchを確認するために追加した実装ここまで
+
 #[cfg(test)]
 mod tests {
 	use super::Winnow;
@@ -86,7 +89,9 @@ mod tests {
 	#[test]
 	fn closure_test() {
 		let expected = (0..10).filter(|i| i & 1 == 0);
-		let actual = (0..10).winnow(|i: &i32| i & 1 == 0);
+
+		//ここで、|i| i & 1 == 0とすると、コンパイルエラーが発生する。
+		let actual = (0..10).winnow(|i: &_| i & 1 == 0);
 
 		assert(expected, actual)
 	}
