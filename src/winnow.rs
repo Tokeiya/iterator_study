@@ -40,13 +40,31 @@ impl<I: Iterator<Item = i32>> Iterator for WinnowIterator<I, WinnowTypes> {
 	type Item = i32;
 
 	fn next(&mut self) -> Option<Self::Item> {
-		todo!()
+		fn odd(i: &i32) -> bool {
+			i & 1 == 1
+		}
+
+		fn even(i: &i32) -> bool {
+			i & 1 == 0
+		}
+
+		for e in self.0.by_ref() {
+			let tmp = match self.1 {
+				WinnowTypes::Even => even(&e),
+				WinnowTypes::Odd => odd(&e),
+			};
+
+			return if tmp { Some(e) } else { continue };
+		}
+
+		None
 	}
 }
 
 #[cfg(test)]
 mod tests {
-	use super::{Winnow, WinnowIterator};
+	use super::Winnow;
+	use crate::winnow::WinnowTypes::{Even, Odd};
 	use std::fmt::Debug;
 
 	fn assert<T: PartialEq + Debug, E: Iterator<Item = T>, A: Iterator<Item = T>>(
@@ -70,6 +88,17 @@ mod tests {
 		let expected = (0..10).filter(|i| i & 1 == 0);
 		let actual = (0..10).winnow(|i: &i32| i & 1 == 0);
 
+		assert(expected, actual)
+	}
+
+	#[test]
+	fn enum_test() {
+		let actual = (0..10).winnow(Even);
+		let expected = (0..10).filter(|x| x % 2 == 0);
+		assert(expected, actual);
+
+		let actual = (0..10).winnow(Odd);
+		let expected = (0..10).filter(|x| x % 2 != 0);
 		assert(expected, actual)
 	}
 }
