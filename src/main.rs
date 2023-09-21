@@ -3,13 +3,26 @@
 mod clip;
 mod winnow;
 
-fn main() {
-	let chunk = (0..9).array_chunks::<5>();
+fn main() {}
 
-	for clip in chunk {
-		println!("----------");
-		for i in clip {
-			println!("{}", i)
-		}
+fn foo<const N: usize>(arr: [i32; N]) -> i64 {
+	let mut accum = 0i64;
+
+	for i in arr {
+		accum += (i as i64);
 	}
+
+	accum
+}
+
+fn bar<const N: usize>(arr: &[i32]) -> i64 {
+	let mut accum = 0i64;
+
+	let mut a = 0i32;
+
+	for i in arr {
+		accum += (*i as i64);
+	}
+
+	accum
 }

@@ -1,54 +1,40 @@
-pub struct ClipIterator<const N: usize, I> {
+use std::marker::PhantomData;
+
+pub struct ClipIterator<'a, const N: usize, T, I> {
+	phantom: PhantomData<&'a T>,
 	iterator: I,
+	backend: [T; N],
 }
 
-pub trait Clip<I> {
-	fn clip<const N: usize>(self) -> ClipIterator<N, I>;
+pub trait Clip<'a, const N: usize, T, I> {
+	fn clip(self) -> ClipIterator<'a, N, T, I>;
 }
 
-impl<T: Default + Copy, I: Iterator<Item = T>> Clip<I> for I {
-	fn clip<const N: usize>(self) -> ClipIterator<N, I> {
-		ClipIterator { iterator: self }
+impl<'a, const N: usize, T, I: Iterator<Item = T>> Clip<'a, N, T, I> for I {
+	fn clip(self) -> ClipIterator<'a, N, T, I> {
+		todo!()
 	}
 }
 
-impl<const N: usize, T: Default + Copy, I: Iterator<Item = T>> Iterator for ClipIterator<N, I> {
-	type Item = ([T; N], usize);
+impl<'a, const N: usize, T, I: Iterator<Item = T>> Iterator for ClipIterator<'a, N, T, I> {
+	type Item = &'a [T];
 
 	fn next(&mut self) -> Option<Self::Item> {
-		let mut result = [T::default(); N];
-		let mut size = 0usize;
-
-		for i in 0..N {
-			if let Some(s) = self.iterator.next() {
-				size += 1;
-				result[i] = s;
-			} else {
-				break;
-			}
-		}
-
-		if size == 0 {
-			None
-		} else {
-			Some((result, size))
-		}
+		todo!()
 	}
 }
 
 #[cfg(test)]
 mod tests {
 	use super::{Clip, ClipIterator};
-
 	#[test]
 	fn clip_test() {
-		let c = (0..9).clip::<5>();
+		let mut ite: ClipIterator<'_, 5, i32, std::ops::Range<i32>> = (0..10).clip();
 
-		for array in c {
-			println!("---------------");
-			for i in array.0 {
-				println!("{}", i)
-			}
-		}
+		let actual = ite.next().unwrap();
+		assert_eq!(actual.len(), 5);
+
+		let actual = ite.next().unwrap();
+		assert_eq!(actual.len(), 4);
 	}
 }
